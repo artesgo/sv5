@@ -8,6 +8,6 @@
 </script>
 
 <div class="todo">
-	<input type="checkbox" bind:value={item.done} on:click={() => dispatch('check', item.id)} />
-	{item.description}
+	<input type="checkbox" checked={item.done} on:click={() => dispatch('check', item.id)} />
+	{item.name} : {item.description}
 </div>
