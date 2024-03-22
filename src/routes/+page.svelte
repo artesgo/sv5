@@ -5,6 +5,7 @@
 
 	let who = $state('');
 	let description = $state('');
+	let date = $state(new Date());
 
 	const todoList = createTodo();
 
@@ -40,8 +41,8 @@
 		<input type="text" bind:value={description} />
 	</label>
 
-	<Calendar></Calendar>
-
+	<Calendar on:date={(event) => (date = event.detail)}></Calendar>
+	<div>Due: {date}</div>
 	<button on:click={add}>Add Todo</button>
 </div>
 
