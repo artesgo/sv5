@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, untrack } from 'svelte';
 
 	let year = $state(new Date().getFullYear());
 	let month = $state(new Date().getMonth() + 1);
@@ -7,9 +7,8 @@
 	let day = $state(1);
 	let open = $state(false);
 
-	// TODO: export let prop
-	// let $props.allChanges = false;
-	let closeOnSelection = $state(true);
+	// TODO: export let closeOnSelection;
+	let { closeOnSelection } = $props();
 
 	// get the day of the week for the first day of the month
 	// getDayOfWeek()
@@ -28,11 +27,6 @@
 		new Array(daysInMonth + dayOfWeek).fill(0).map((_, index) => index + 1 - dayOfWeek)
 	);
 
-	// if start of week is sunday, there are no filler elements
-	// dayOfWeek would be 0
-	// index for the first day, starts at 0
-	// and we offset by 1 (add 1), so sunday would be the first of the month in this scenario
-
 	let isLeapYear = $derived(year % 4 === 0);
 
 	const dispatch = createEventDispatcher();
@@ -46,31 +40,32 @@
 		'Saturday'
 	]);
 
+	// TODO: keyboard navigate the calendar component
 	function navigate(event: Event) {
 		console.log(event);
 		// control calendar via arrow keys
 	}
 
-	// side effect of something changing
+	let init = false;
 	$effect(() => {
-		// console.log('days changed', days);
-		// this runs, when dayOfWeek changes
-		console.log('month changed', dayOfWeek);
+		// rebind the signals that you do want to track
+		const d = day;
+		if (init) {
+			untrack(() => {
+				change(year, month, d);
+			});
+		}
+		init = true;
 	});
 
-	// i want another side effect, but this only listens to changes on day
-	$effect(() => {
-		// an effect listens to variables created with the $state / $derived functions
-		// year month and day were created with those, so any changes to these variables will
-		// run this effect block
-		// if (closeOnSelection) {
-		// change();
-		// }
-		// not listening to certain signals
-		// TODO: find the svelte way of not tracking state changes
-	});
+	function change(y: number, m: number, d: number) {
+		dispatch('date', new Date(y, m - 1, d));
+		if (closeOnSelection) {
+			toggle();
+		}
+	}
 
-	function change() {
+	function ok() {
 		dispatch('date', new Date(year, month - 1, day));
 		toggle();
 	}
@@ -78,7 +73,9 @@
 	// question: i want the OK button to also call this
 	// the OK button calls the change()
 	function toggle() {
-		open = !open;
+		untrack(() => {
+			open = !open;
+		});
 	}
 </script>
 
@@ -111,11 +108,13 @@
 			{/each}
 		</section>
 
-		<button on:click={change}>OK</button>
+		<button on:click={ok}>OK</button>
 	</dialog>
 </div>
 
-<style>
+<!-- add  lang="scss" to the style tag -->
+<style lang="scss">
+	/** npm i sass -D */
 	/* TODO: Andy, find out what CSS Plus is */
 	.calendar {
 		display: grid;

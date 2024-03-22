@@ -41,13 +41,16 @@
 		<input type="text" bind:value={description} />
 	</label>
 
-	<Calendar on:date={(event) => (date = event.detail)}></Calendar>
+	<Calendar on:date={(event) => (date = event.detail)} closeOnSelection={true}></Calendar>
 	<div>Due: {date}</div>
 	<button on:click={add}>Add Todo</button>
 </div>
 
+<Calendar on:date={(event) => (date = event.detail)} closeOnSelection={false}></Calendar>
+
 {whoDunIt}
 
+<!-- TODO: work with local storage until we have a proper setup to store the TODO's into database -->
 <h2>Unfinished Tasks</h2>
 <!--                   (item.id) here tracks which item was here so the 
 	application can know when it gets removed or updated -->
